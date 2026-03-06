@@ -85,6 +85,8 @@ The system is configured with the following parameters:
 
 This architecture ensures that the agent operates safely and effectively within the constraints of a real software repository environment.
 
+-- Stuff written by me, with AI ofcourse ---
+
 ## ⚠️ Known Limitations
 
 While the agent is capable of exploring repositories, modifying code, and generating documentation, it is powered by a relatively small language model (`qwen3:4b-instruct`). As a result, several limitations are expected. These are primarily due to model capacity constraints rather than architectural issues in the agent itself.
