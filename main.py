@@ -29,17 +29,16 @@ def main():
 
         if response is None or response.eval_count is None:
             print("LLM response malformed")
-        else:
-            messages.append({"role":"model", "content": response.message.content})
+        if response.message.content:
+            messages.append({"role":"assistant", "content": response.message.content})
 
         out_token_count += getattr(response, "eval_count", 0)
 
         if response.message.tool_calls:
             for tool in response.message.tool_calls:
-                messages.append({"role":"model", "content": f"Calling {tool.function.name} with {tool.function.arguments}"})
                 result = call_function(tool.function.name, tool.function.arguments, v_flag)
-                messages.append({"role": "tool", "content": result})
-        else:
+                messages.append({"role": "tool", "content": result, "name": tool.function.name})
+        if not response.message.tool_calls:
             break
 
     out = response.message.content
