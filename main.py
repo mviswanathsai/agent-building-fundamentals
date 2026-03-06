@@ -24,9 +24,10 @@ def main():
             ]
 
     out_token_count = 0
+    files_read = 0
     for i in range(max_iters):
-        response = ollama.chat(model=model, messages=messages, tools=available_tools)
 
+        response = ollama.chat(model=model, messages=messages, tools=available_tools)
         if response is None or response.eval_count is None:
             print("LLM response malformed")
         if response.message.content:
@@ -36,10 +37,16 @@ def main():
 
         if response.message.tool_calls:
             for tool in response.message.tool_calls:
-                result = call_function(tool.function.name, tool.function.arguments, v_flag)
-                messages.append({"role": "tool", "content": result, "name": tool.function.name})
+                if tool.function.name == "write_file" and files_read < 3:
+                    messages.append({"role": "tool", "content": "Error: You must read more files before writing.", "name": tool.function.name})
+                else:
+                    result = call_function(tool.function.name, tool.function.arguments, v_flag)
+                    messages.append({"role": "tool", "content": result, "name": tool.function.name})
+                    if tool.function.name == "get_file_content": # the result could still be a failure, but it's fine since the model did attempt to read the file
+                        files_read += 1
         if not response.message.tool_calls:
             break
+
 
     out = response.message.content
     prompt_token_count = response.prompt_eval_count

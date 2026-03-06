@@ -26,6 +26,9 @@ def get_files_info(directory: str ="."):
     if not abs_directory.startswith(abs_wd):
         return f"Error: {directory} is not in the working directory"
 
+    if not os.path.exists(abs_directory):
+        return f"Error: {direcotry} does not exist. Check the directory structure and ensure the path is correct."
+
     final_response = ""
     contents = os.listdir(abs_directory)
     for content in contents:

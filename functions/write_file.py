@@ -25,8 +25,6 @@ def write_file(file_path: str, file_content_string: str):
 
     if not abs_file_path.startswith(abs_wd):
         return f"Error: {file_path} does not exist inside the working directory"
-    if os.path.exists(abs_file_path) and os.path.isfile(abs_file_path):
-        return f"Error: {file_path} file already exists"
 
     try:
         os.makedirs(os.path.dirname(abs_file_path), exist_ok=True)
