@@ -85,3 +85,92 @@ The system is configured with the following parameters:
 
 This architecture ensures that the agent operates safely and effectively within the constraints of a real software repository environment.
 
+## ⚠️ Known Limitations
+
+While the agent is capable of exploring repositories, modifying code, and generating documentation, it is powered by a relatively small language model (`qwen3:4b-instruct`). As a result, several limitations are expected. These are primarily due to model capacity constraints rather than architectural issues in the agent itself.
+
+### Path Reasoning Errors
+
+The agent may occasionally construct incorrect file paths when attempting to read files. For example, it might infer paths such as:
+
+```
+calculator/pkg/render.py
+```
+
+instead of the correct location like:
+
+```
+pkg/render.py
+```
+
+This occurs because smaller models rely heavily on pattern completion rather than robust symbolic reasoning over directory structures.
+
+### Repeated Tool Calls
+
+When the agent encounters an error (for example, a file path that does not exist), it may repeatedly attempt the same failing tool call instead of changing strategy. This can lead to loops such as repeatedly calling:
+
+```
+get_file_content("calculator/pkg/render.py")
+```
+
+Guardrails in the agent loop attempt to mitigate this behavior, but this isn't very effective in giving us a better answer.
+
+### Limited Repository Understanding
+
+Smaller models struggle to maintain a coherent mental model of large codebases. As a result, the agent may:
+
+* Miss relationships between modules
+* Fail to follow complex import chains
+* Overlook relevant files
+* Stop exploring prematurely
+
+This can reduce the completeness of generated documentation or analysis.
+
+### Prompt Sensitivity
+
+The agent is sensitive to how instructions are phrased. Slight variations in the user prompt can significantly affect behavior, including:
+
+* How aggressively it explores the repository
+* Whether it chooses to call tools
+* Whether it prematurely produces a final response
+
+More explicit prompts generally produce better results.
+
+### Imperfect Planning
+
+The model has limited capacity for long-horizon planning. This means it may:
+
+* Take inefficient exploration paths
+* Inspect files in a suboptimal order
+* Miss opportunities to verify assumptions using available tools
+
+Larger models generally perform better at structured planning.
+
+### Limited Debugging Ability
+
+Although the agent can execute Python scripts and tests, its ability to diagnose complex bugs is limited. It may struggle with:
+
+* Multi-file logical errors
+* Subtle runtime issues
+* Complex dependency chains
+
+### Inconsistent Error Recovery
+
+When a tool call fails, the agent may not always recover optimally. Instead of revisiting the repository structure to correct its assumptions, it may continue attempting variations of an incorrect action.
+
+---
+
+## Why These Limitations Exist
+
+These behaviors are primarily a consequence of the **small model size (4B parameters)**. Larger models tend to perform better at:
+
+* maintaining state across long tool-use sequences
+* reasoning about filesystem structure
+* planning multi-step actions
+* recovering from errors
+
+Despite these limitations, the agent still demonstrates useful capabilities for repository exploration, lightweight code modifications, and automated documentation generation.
+
+---
+
+
